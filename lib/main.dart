@@ -303,22 +303,26 @@ class _HomeScreenState extends State<HomeScreen> {
             name: "Amanda's Boutique",
             desc:
                 'A modern designer with a youthful spirit, dedicated to hand-making every piece with care...',
-            imageUrl: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=200&fit=crop',
+            imageUrl:
+                'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=200&fit=crop',
           ),
           const _BrandTile(
             name: 'Nike',
             desc: 'Just Do It',
-            imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&fit=crop',
+            imageUrl:
+                'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&fit=crop',
           ),
           const _BrandTile(
             name: 'LOST COINS',
             desc: '',
-            imageUrl: 'https://images.unsplash.com/photo-1621504450181-5d356f61d307?w=200&fit=crop',
+            imageUrl:
+                'https://images.unsplash.com/photo-1621504450181-5d356f61d307?w=200&fit=crop',
           ),
           const _BrandTile(
             name: 'Yousaf',
             desc: 'Wear the mood, not the label.',
-            imageUrl: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=200&fit=crop',
+            imageUrl:
+                'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=200&fit=crop',
           ),
           const Spacer(),
           Row(
