@@ -1,7 +1,5 @@
-import 'dart:async';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,10 +18,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (context, state) => const OnboardingScreen()),
       GoRoute(path: '/next', builder: (context, state) => const HomeScreen()),
-      GoRoute(
-        path: '/explore',
-        builder: (context, state) => const ExploreScreen(),
-      ),
       GoRoute(
         path: '/signin',
         builder: (context, state) => const SignInScreen(),
@@ -51,22 +45,6 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class _SimpleScreen extends StatelessWidget {
-  const _SimpleScreen({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(
-        child: Text(title, style: Theme.of(context).textTheme.titleLarge),
-      ),
-    );
-  }
-}
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -77,11 +55,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   final ScrollController _scrollController = ScrollController();
-  final List<String> _images = [
-    'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800',
-    'https://images.unsplash.com/photo-1550246140-5119ae4790b8?w=800',
-    'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800',
-  ];
 
   @override
   void dispose() {
@@ -102,115 +75,16 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: MediaQuery.of(context).padding.top + 130),
+                SizedBox(height: MediaQuery.of(context).padding.top + 90),
                 const _FilterChips(),
                 const SizedBox(height: 16),
                 SizedBox(
-                  height: 380,
-                  child: PageView.builder(
-                    itemCount: _images.length,
-                    controller: PageController(viewportFraction: 0.92),
+                  height: 560,
+                  child: PageView(
                     onPageChanged: (i) => setState(() => _currentIndex = i),
-                    itemBuilder: (context, i) =>
-                        _DesignerCard(imageUrl: _images[i]),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Emerging Designers',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF333333),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Explore small businesses and discover unique, one-of-a-kind looks.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6F6F6F),
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF071424),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
-                                onTap: () {},
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 12,
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: const [
-                                      Text(
-                                        'Shop Now',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 15,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      SizedBox(width: 12),
-                                      Icon(
-                                        Icons.arrow_forward,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: List.generate(_images.length, (i) {
-                              final isActive = i == _currentIndex;
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 3,
-                                ),
-                                width: isActive ? 14 : 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: isActive
-                                      ? const Color(0xFF1B8FFF)
-                                      : const Color(0xFFD8D8D8),
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              );
-                            }),
-                          ),
-                        ],
-                      ),
+                      _buildDesignerPage(),
+                      _buildTrendingBrandsPage(),
                     ],
                   ),
                 ),
@@ -264,11 +138,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.only(
                         top: MediaQuery.of(context).padding.top,
                       ),
-                      child: Column(
+                      child: const Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const _TopTabs(isExplore: false),
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.symmetric(
                               horizontal: 24,
                               vertical: 12,
@@ -288,269 +161,212 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: const _BottomNavBar(selected: 0),
     );
   }
-}
 
-class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
-
-  @override
-  State<ExploreScreen> createState() => _ExploreScreenState();
-}
-
-class _ExploreScreenState extends State<ExploreScreen> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      extendBody: true,
-      extendBodyBehindAppBar: true,
-      body: Stack(
+  Widget _buildDesignerPage() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SingleChildScrollView(
-            controller: _scrollController,
+          Container(
+            height: 380,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF8B8B),
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
+                ),
+                child: Image.network(
+                  'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800',
+                  width: double.infinity,
+                  height: 380,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: MediaQuery.of(context).padding.top + 130),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Trending Brands',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF333333),
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Loved by the community, picked by us — these brands are changing the game from the ground up.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6F6F6F),
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
+                const Text(
+                  'Emerging Designers',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF333333),
+                    letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 18),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    children: const [
-                      _BrandTile(
-                        name: "Amanda's Boutique",
-                        desc:
-                            'A modern designer with a youthful spirit, dedicated to hand-making every piece with care...',
-                        imageUrl:
-                            'https://randomuser.me/api/portraits/women/44.jpg',
-                      ),
-                      _BrandTile(
-                        name: 'Nike',
-                        desc: 'Just Do It',
-                        imageUrl:
-                            'https://randomuser.me/api/portraits/men/45.jpg',
-                      ),
-                      _BrandTile(
-                        name: 'LOST COINS',
-                        desc: '',
-                        imageUrl:
-                            'https://randomuser.me/api/portraits/men/46.jpg',
-                      ),
-                      _BrandTile(
-                        name: 'Yousaf',
-                        desc: 'Wear the mood, not the label.',
-                        imageUrl:
-                            'https://randomuser.me/api/portraits/men/47.jpg',
-                      ),
-                      SizedBox(height: 16),
-                    ],
+                const SizedBox(height: 6),
+                const Text(
+                  'Explore small businesses and discover unique, one-of-a-kind looks.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6F6F6F),
+                    height: 1.4,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Row(
-                    children: [
-                      const Image(
-                        image: NetworkImage(
-                          'https://upload.wikimedia.org/wikipedia/commons/6/6a/World_Flag_Map.png',
-                        ),
-                        width: 60,
-                        height: 24,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Explore the Global Scene >',
-                          style: TextStyle(
-                            color: Color(0xFF1B8FFF),
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 120), // pad for nav
-              ],
-            ),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: AnimatedBuilder(
-              animation: _scrollController,
-              builder: (context, child) {
-                double offset = 0;
-                if (_scrollController.hasClients) {
-                  offset = _scrollController.offset;
-                }
-                double glassStrength = (offset / 100).clamp(0.0, 1.0);
-
-                return ClipRRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: glassStrength * 15,
-                      sigmaY: glassStrength * 15,
-                    ),
-                    child: Container(
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(
-                          alpha: 1.0 - (glassStrength * 0.4),
-                        ),
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.black.withValues(
-                              alpha: glassStrength * 0.05,
-                            ),
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).padding.top,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const _TopTabs(isExplore: true),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            child: _SearchBar(),
+                        color: const Color(0xFF071424),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {},
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Text(
+                                  'Shop Now',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              },
+                    _buildDots(),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
       ),
-      bottomNavigationBar: const _BottomNavBar(selected: 0),
     );
   }
-}
 
-class _TopTabs extends StatelessWidget {
-  final bool isExplore;
-  const _TopTabs({required this.isExplore});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTrendingBrandsPage() {
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                if (isExplore) context.go('/next');
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: !isExplore
-                          ? const Color(0xFF1B8FFF)
-                          : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                ),
-                padding: const EdgeInsets.only(bottom: 12),
-                alignment: Alignment.center,
+          const Text(
+            'Trending Brands',
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF333333),
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Loved by the community, picked by us — these brands are changing the game from the ground up.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF6F6F6F),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 18),
+          const _BrandTile(
+            name: "Amanda's Boutique",
+            desc:
+                'A modern designer with a youthful spirit, dedicated to hand-making every piece with care...',
+            imageUrl: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=200&fit=crop',
+          ),
+          const _BrandTile(
+            name: 'Nike',
+            desc: 'Just Do It',
+            imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&fit=crop',
+          ),
+          const _BrandTile(
+            name: 'LOST COINS',
+            desc: '',
+            imageUrl: 'https://images.unsplash.com/photo-1621504450181-5d356f61d307?w=200&fit=crop',
+          ),
+          const _BrandTile(
+            name: 'Yousaf',
+            desc: 'Wear the mood, not the label.',
+            imageUrl: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=200&fit=crop',
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Image.network(
+                'https://upload.wikimedia.org/wikipedia/commons/6/6a/World_Flag_Map.png',
+                width: 60,
+                height: 24,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const SizedBox(width: 60, height: 24),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
                 child: Text(
-                  'For You',
+                  'Explore the Global Scene >',
                   style: TextStyle(
+                    color: Color(0xFF1B8FFF),
                     fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: !isExplore
-                        ? const Color(0xFF1A1A1A)
-                        : const Color(0xFFB4B4B4),
+                    fontSize: 13,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
-            ),
+              _buildDots(),
+            ],
           ),
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                if (!isExplore) context.go('/explore');
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: isExplore
-                          ? const Color(0xFF1B8FFF)
-                          : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                ),
-                padding: const EdgeInsets.only(bottom: 12),
-                alignment: Alignment.center,
-                child: Text(
-                  'Explore',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: isExplore
-                        ? const Color(0xFF1A1A1A)
-                        : const Color(0xFFB4B4B4),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(height: 16),
         ],
       ),
+    );
+  }
+
+  Widget _buildDots() {
+    return Row(
+      children: List.generate(2, (i) {
+        final isActive = i == _currentIndex;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: isActive ? 14 : 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: isActive ? const Color(0xFF1B8FFF) : const Color(0xFFD8D8D8),
+            borderRadius: BorderRadius.circular(3),
+          ),
+        );
+      }),
     );
   }
 }
@@ -643,43 +459,6 @@ class _FilterChips extends StatelessWidget {
           fontWeight: FontWeight.w600,
           fontSize: 14,
         ),
-      ),
-    );
-  }
-}
-
-class _DesignerCard extends StatelessWidget {
-  final String imageUrl;
-  const _DesignerCard({required this.imageUrl});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFF8B8B),
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 0),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
-                ),
-                child: Image.network(
-                  imageUrl,
-                  width: double.infinity,
-                  height: 380,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1011,12 +790,26 @@ class _BrandTile extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    bool isNike = name == 'Nike';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(backgroundImage: NetworkImage(imageUrl), radius: 28),
+          Container(
+            padding: EdgeInsets.all(isNike ? 2 : 0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isNike ? const Color(0xFF1B8FFF) : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(imageUrl),
+              radius: 28,
+            ),
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
