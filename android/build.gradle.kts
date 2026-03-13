@@ -23,6 +23,16 @@ subprojects {
             if (androidExt?.namespace == null) {
                 androidExt?.namespace = "com.example." + project.name.replace("-", "_")
             }
+            androidExt?.compileSdkVersion(36)
+        }
+    }
+    
+    // Fix for older plugins (like isar_flutter_libs) that have the package attribute in AndroidManifest.xml under AGP 8.0+
+    val manifestFile = file("src/main/AndroidManifest.xml")
+    if (manifestFile.exists()) {
+        val content = manifestFile.readText()
+        if (content.contains("package=\"")) {
+            manifestFile.writeText(content.replace(Regex("package=\"[^\"]*\""), ""))
         }
     }
 }
