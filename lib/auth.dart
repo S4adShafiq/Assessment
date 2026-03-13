@@ -166,27 +166,39 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     ref.read(onboardingProvider.notifier).setSubmitting(true);
 
     try {
-      final isar = await ref.read(isarProvider.future);
-      await isar.writeTxn(() async {
-        await isar.userDraft33720s.put(
-          UserDraft33720()
-            ..email = state.email
-            ..username = state.username
-            ..birthday = state.birthday
-            ..password = state.password,
-        );
-      });
+      // 1. Create User Identity in Firebase
+      final userCredential = await ref.read(firebaseAuthProvider).createUserWithEmailAndPassword(
+        email: state.email,
+        password: state.password,
+      );
 
-      try {
-        await ref.read(firebaseAuthProvider).signInAnonymously();
-      } catch (_) {}
+      // 2. Set Firebase Display Name
+      await userCredential.user?.updateDisplayName(state.username);
 
+      // 3. Save Draft locally
       try {
-        await ref.read(dioProvider).get('https://example.com/api/ping');
-      } catch (_) {}
+        final isar = await ref.read(isarProvider.future);
+        await isar.writeTxn(() async {
+          await isar.userDraft33720s.put(
+            UserDraft33720()
+              ..email = state.email
+              ..username = state.username
+              ..birthday = state.birthday
+              ..password = state.password,
+          );
+        });
+      } catch (e) {
+        debugPrint('Isar failure: $e');
+      }
 
       if (mounted) {
         context.push('/next');
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Firebase error: $e')),
+        );
       }
     } finally {
       if (mounted) {

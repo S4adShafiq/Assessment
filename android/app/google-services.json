@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "18105285108",
+    "project_id": "assessmnet-fdfdb",
+    "storage_bucket": "assessmnet-fdfdb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18105285108:android:013bc0ad241d5d8ced21a1",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtVkuGHwhnGjPVfIsD0yjJ5XIlN0XrHNI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
