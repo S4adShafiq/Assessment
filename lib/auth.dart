@@ -167,10 +167,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     try {
       // 1. Create User Identity in Firebase
-      final userCredential = await ref.read(firebaseAuthProvider).createUserWithEmailAndPassword(
-        email: state.email,
-        password: state.password,
-      );
+      final userCredential = await ref
+          .read(firebaseAuthProvider)
+          .createUserWithEmailAndPassword(
+            email: state.email,
+            password: state.password,
+          );
 
       // 2. Set Firebase Display Name
       await userCredential.user?.updateDisplayName(state.username);
@@ -196,9 +198,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
     } on Exception catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Firebase error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Firebase error: $e')));
       }
     } finally {
       if (mounted) {
@@ -320,7 +322,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   const SizedBox(height: 14),
                   TextButton(
-                    onPressed: () => context.push('/'),
+                    onPressed: () => context.push('/signin'),
                     child: RichText(
                       text: TextSpan(
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -529,6 +531,93 @@ class _AnimatedNextButton extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class SignInScreen extends ConsumerStatefulWidget {
+  const SignInScreen({super.key});
+
+  @override
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState<SignInScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+  bool _showPassword = false;
+
+  Future<void> _signIn() async {
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(firebaseAuthProvider).signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (mounted) {
+        context.go('/next');
+      }
+    } on Exception catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sign in failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sign In')),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: !_showPassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () => setState(() => _showPassword = !_showPassword),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _signIn,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text('Sign In'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
