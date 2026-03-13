@@ -5,10 +5,7 @@ import 'package:myapp/main.dart';
 void main() {
   testGoldens('Welcome Screen Golden', (tester) async {
     final builder = DeviceBuilder()
-      ..overrideDevicesForAllScenarios(devices: [
-        Device.phone,
-        Device.iphone11,
-      ])
+      ..overrideDevicesForAllScenarios(devices: [Device.phone, Device.iphone11])
       ..addScenario(
         widget: const ProviderScope(child: MyApp()),
         name: 'default',

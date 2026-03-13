@@ -15,10 +15,19 @@ void main() {
     expect(find.text('Welcome!'), findsOneWidget);
 
     // Fill out form
-    await tester.enterText(find.widgetWithText(TextField, 'example@email.com').first, 'test@example.com');
-    await tester.enterText(find.widgetWithText(TextField, 'JohnApple').first, 'Tester');
-    await tester.enterText(find.widgetWithText(TextField, '••••••••').first, 'Test@1234');
-    
+    await tester.enterText(
+      find.widgetWithText(TextField, 'example@email.com').first,
+      'test@example.com',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'JohnApple').first,
+      'Tester',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, '••••••••').first,
+      'Test@1234',
+    );
+
     // Tap Next
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
